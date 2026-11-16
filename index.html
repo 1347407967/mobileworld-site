@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>陈子涵 — 前端工程师 / 独立开发者</title>
+<meta name="description" content="陈子涵的个人主页，前端工程师与独立开发者，专注交互体验与 Web 视觉实现。" />
+<style>
+  /* ---------- 基础变量 ---------- */
+  :root {
+    --bg: #07080c;
+    --bg-soft: #0d0f16;
+    --card: rgba(255, 255, 255, 0.035);
+    --card-hover: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #eef1f7;
+    --muted: #8b93a7;
+    --accent: #6c8cff;
+    --accent-2: #b06cff;
+    --accent-3: #3ee0c8;
+    --radius: 18px;
+    --max: 1120px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                 "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(108, 140, 255, 0.35); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- 背景光斑 ---------- */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    will-change: transform;
+  }
+  .blob-1 {
+    width: 620px; height: 620px;
+    background: radial-gradient(circle, #4a5dff 0%, transparent 65%);
+    top: -220px; left: -140px;
+    animation: float1 22s ease-in-out infinite;
+  }
+  .blob-2 {
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, #8b3dff 0%, transparent 65%);
+    top: 30%; right: -220px;
+    animation: float2 26s ease-in-out infinite;
+  }
+  .blob-3 {
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, #0fb8a4 0%, transparent 65%);
+    bottom: -180px; left: 30%;
+    opacity: 0.32;
+    animation: float3 30s ease-in-out infinite;
+  }
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(90px, 70px) scale(1.12); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-80px, 90px) scale(1.08); }
+  }
+  @keyframes float3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(60px, -70px) scale(1.15); }
+  }
+
+  /* 细网格叠加 */
+  .grid-lines {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+  }
+
+  /* ---------- 布局 ---------- */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- 导航 ---------- */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    transition: background 0.4s var(--ease), border-color 0.4s var(--ease), backdrop-filter 0.4s;
+    border-bottom: 1px solid transparent;
+  }
+  header.scrolled {
+    background: rgba(7, 8, 12, 0.72);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border-bottom-color: var(--line);
+  }
+  .nav {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .logo {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 14px rgba(108, 140, 255, 0.85);
+  }
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    font-size: 14px;
+  }
+  .nav-links a {
+    display: block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: var(--muted);
+    transition: color 0.25s, background 0.25s;
+  }
+  .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.07); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease), background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: #fff;
+    box-shadow: 0 8px 30px -10px rgba(108, 140, 255, 0.9);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 38px -10px rgba(140, 120, 255, 0.95);
+  }
+  .btn-ghost {
+    border-color: var(--line);
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-2px);
+  }
+
+  .nav-cta { display: inline-flex; }
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 0 90px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 64px;
+    align-items: center;
+    width: 100%;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 15px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.03);
+    font-size: 13px;
+    color: #c3cadb;
+    margin-bottom: 26px;
+  }
+  .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-3);
+    box-shadow: 0 0 0 0 rgba(62, 224, 200, 0.6);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(62, 224, 200, 0.55); }
+    70% { box-shadow: 0 0 0 10px rgba(62, 224, 200, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(62, 224, 200, 0); }
+  }
+
+  h1 {
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .grad-text {
+    background: linear-gradient(100deg, #a8b8ff 0%, #d0a5ff 45%, #7ef0dd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shine 7s linear infinite;
+  }
+  @keyframes shine {
+    to { background-position: 200% center; }
+  }
+  .hero p.lead {
+    font-size: clamp(15px, 1.6vw, 17.5px);
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 38px;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+  /* 右侧代码窗 */
+  .code-card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.015));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9);
+    transform: perspective(1000px) rotateY(-7deg) rotateX(4deg);
+    transition: transform 0.6s var(--ease);
+  }
+  .code-card:hover {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(-4px);
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .code-bar span {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #6b7280;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  pre {
+    padding: 20px 20px 24px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.8px;
+    line-height: 1.85;
+    overflow-x: auto;
+    color: #cdd4e4;
+    tab-size: 2;
+  }
+  .k { color: #c792ea; }
+  .s { color: #a5e6a0; }
+  .f { color: #82aaff; }
+  .c { color: #5b6479; font-style: italic; }
+  .n { color: #ffcb6b; }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 46px; }
+    .code-card { transform: none; }
+    .hero { padding-top: 120px; }
+  }
+
+  /* ---------- 通用段落 ---------- */
+  section { padding: 100px 0; position: relative; }
+  .sec-head { margin-bottom: 56px; }
+  .sec-label {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sec-label::before {
+    content: "";
+    width: 26px; height: 1px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+  h2 {
+    font-size: clamp(28px, 3.6vw, 42px);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+  .sec-head p {
+    color: var(--muted);
+    margin-top: 14px;
+    max-width: 560px;
+    font-size: 15.5px;
+  }
+
+  /* ---------- 关于 ---------- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .about-text p { color: #b6bdcd; margin-bottom: 18px; font-size: 15.5px; }
+  .about-text strong { color: var(--text); font-weight: 600; }
+
+  .stats { display: grid; gap: 14px; }
+  .stat {
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: background 0.3s, transform 0.3s var(--ease), border-color 0.3s;
+  }
+  .stat:hover { background: var(--card-hover); transform: translateX(5px); border-color: rgba(255,255,255,0.16); }
+  .stat b {
+    display: block;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff, #99a6d8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+  }
+  .stat span { font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 860px) {
+    .about-grid { grid-template-columns: 1fr; gap: 36px; }
+  }
+
+  /* ---------- 技能 ---------- */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .skill-card {
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+    transition: background 0.35s, transform 0.35s var(--ease), border-color 0.35s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(108,140,255,0.13), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .skill-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.16); }
+  .skill-card:hover::after { opacity: 1; }
+  .skill-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+    background: rgba(108, 140, 255, 0.12);
+    border: 1px solid rgba(108, 140, 255, 0.25);
+    color: #a9bbff;
+  }
+  .skill-card h3 { font-size: 16px; margin-bottom: 9px; font-weight: 600; letter-spacing: -0.01em; }
+  .skill-card p { font-size: 13.6px; color: var(--muted); line-height: 1.7; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+  .chip {
+    font-size: 11.6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid var(--line);
+    color: #a9b2c6;
+  }
+
+  /* ---------- 作品 ---------- */
+  .projects { display: grid; gap: 18px; }
+  .project {
+    display: grid;
+    grid-template-columns: 76px 1fr auto;
+    gap: 26px;
+    align-items: center;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+    transition: background 0.35s, border-color 0.35s, transform 0.4s var(--ease);
+  }
+  .project:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-3px);
+  }
+  .proj-thumb {
+    width: 76px; height: 76px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .p1 { background: linear-gradient(135deg, #5b7cff, #9d5bff); }
+  .p2 { background: linear-gradient(135deg, #00c2a8, #0f8cff); }
+  .p3 { background: linear-gradient(135deg, #ff7a59, #ff3d8b); }
+  .p4 { background: linear-gradient(135deg, #8d6bff, #ff6bd6); }
+
+  .project h3 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .project .badge {
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(62, 224, 200, 0.12);
+    border: 1px solid rgba(62, 224, 200, 0.3);
+    color: #6ee8d6;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .project .desc { font-size: 14px; color: var(--muted); max-width: 620px; }
+  .proj-meta { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
+  .proj-meta span {
+    font-size: 11.5px;
+    color: #8f98ad;
+    border: 1px solid var(--line);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .arrow {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    transition: all 0.35s var(--ease);
+    flex-shrink: 0;
+  }
+  .project:hover .arrow {
+    background: #fff;
+    color: #07080c;
+    border-color: #fff;
+    transform: rotate(-45deg);
+  }
+  @media (max-width: 760px) {
+    .project { grid-template-columns: 60px 1fr; gap: 18px; padding: 22px; }
+    .proj-thumb { width: 60px; height: 60px; border-radius: 13px; font-size: 19px; }
+    .arrow { display: none; }
+    .project h3 { font-size: 16.5px; }
+  }
+
+  /* ---------- 联系 ---------- */
+  .contact-box {
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    padding: 68px 48px;
+    text-align: center;
+    background:
+      radial-gradient(700px circle at 50% 0%, rgba(108,140,255,0.16), transparent 62%),
+      linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-box h2 { margin-bottom: 16px; }
+  .contact-box p { color: var(--muted); max-width: 480px; margin: 0 auto 34px; font-size: 15.5px; }
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 34px;
+    flex-wrap: wrap;
+  }
+  .social {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #9aa3b8;
+    padding: 9px 17px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    transition: all 0.3s;
+  }
+  .social:hover { color: #fff; border-color: rgba(255,255,255,0.24); background: rgba(255,255,255,0.05); }
+  @media (max-width: 640px) {
+    .contact-box { padding: 48px 24px; border-radius: 20px; }
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 34px 0;
+    position: relative;
+    z-index: 1;
+  }
+  .foot {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12.8px;
+    color: #6a7285;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- 滚动进场动画 ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition-duration: 0.01ms !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+
+  /* 滚动进度条 */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 60;
+    transition: width 0.1s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="bg-layer">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+<div class="grid-lines"></div>
+
+<header id="header">
+  <nav class="nav">
+    <a class="logo" href="#top">
+      <span class="logo-dot"></span>
+      陈子涵
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about" data-nav>关于</a></li>
+      <li><a href="#skills" data-nav>能力</a></li>
+      <li><a href="#work" data-nav>作品</a></li>
+      <li><a href="#contact" data-nav>联系</a></li>
+    </ul>
+    <a class="btn btn-primary nav-cta" href="#contact">聊聊合作</a>
+  </nav>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="tag">
+          <span class="pulse"></span>
+          目前接受新的项目合作
+        </div>
+        <h1>
+          你好，我是<br />
+          <span class="grad-text">陈子涵</span>
+        </h1>
+        <p class="lead">
+          前端工程师 / 独立开发者。我喜欢把复杂的想法拆成干净的结构，再用合适的动效和排版把它讲清楚。
+          写过设计系统，也做过从 0 到 1 的产品。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#work">
+            查看作品
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#contact">联系我</a>
+        </div>
+      </div>
+
+      <div class="code-card">
+        <div class="code-bar">
+          <span class="dot r"></span>
+          <span class="dot y"></span>
+          <span class="dot g"></span>
+          <span>profile.ts</span>
+        </div>
+<pre><code><span class="c">// 把每天的小事做扎实</span>
+<span class="k">const</span> <span class="f">me</span> = {
+  <span class="n">name</span>: <span class="s">'陈子涵'</span>,
+  <span class="n">role</span>: <span class="s">'Frontend Engineer'</span>,
+  <span class="n">stack</span>: [<span class="s">'TypeScript'</span>, <span class="s">'React'</span>,
+            <span class="s">'Vue'</span>, <span class="s">'Node'</span>],
+  <span class="n">focus</span>: <span class="s">'交互体验 / 性能优化'</span>,
+  <span class="n">coffee</span>: <span class="k">true</span>
+};
+
+<span class="k">export default</span> <span class="f">me</span>;</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于 -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="sec-label">About</div>
+        <h2>把想法变成能用的东西</h2>
+      </div>
+      <div class="about-grid reveal">
+        <div class="about-text">
+          <p>
+            我在 <strong>2021 年</strong>开始写前端，从最基础的 HTML/CSS 一路做到组件库与工程化。
+            这些年待过创业团队，也做过外部顾问，习惯站在产品和用户的角度想问题，而不是只把设计稿切完交付。
+          </p>
+          <p>
+            我关注三件事：<strong>结构清晰</strong>、<strong>视觉克制</strong>、<strong>性能不出戏</strong>。
+            一个页面在低端机上能跑起来、在弱网下能看清，比任何华丽的动效都重要。
+          </p>
+          <p>
+            工作之外喜欢拍照、跑步，偶尔写点技术笔记。如果你也在做有意思的产品，欢迎随便聊聊。
+          </p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>5 年</b><span>前端开发经验</span></div>
+          <div class="stat"><b>20+</b><span>上线项目</span></div>
+          <div class="stat"><b>8</b><span>长期合作客户</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 能力 -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="sec-label">Capabilities</div>
+        <h2>我能做什么</h2>
+        <p>从前端界面到工程配置，从交互细节到上线部署，基本可以独立走完整个链路。</p>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-card reveal">
+          <div class="skill-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>前端开发</h3>
+          <p>组件化、状态管理、路由与数据层。写得动大项目，也扛得住改需求。</p>
+          <div class="chips">
+            <span class="chip">React</span><span class="chip">Vue 3</span><span class="chip">TypeScript</span><span class="chip">Vite</span>
+          </div>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="10" cy="19" r="2.5"/></svg>
+          </div>
+          <h3>界面与动效</h3>
+          <p>设计系统搭建、细节过渡、滚动叙事。追求"用起来不别扭"的手感。</p>
+          <div class="chips">
+            <span class="chip">CSS 动画</span><span class="chip">GSAP</span><span class="chip">Figma</span>
+          </div>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+          </div>
+          <h3>性能优化</h3>
+          <p>首屏加载、包体积、渲染卡顿排查。让页面在真实设备上也快。</p>
+          <div class="chips">
+            <span class="chip">Lighthouse</span><span class="chip">懒加载</span><span class="chip">SSR</span>
+          </div>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+          </div>
+          <h3>后端与部署</h3>
+          <p>接口设计、数据库、自动化部署。小项目一个人也能闭环上线。</p>
+          <div class="chips">
+            <span class="chip">Node</span><span class="chip">PostgreSQL</span><span class="chip">Docker</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 作品 -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="sec-label">Selected Work</div>
+        <h2>近期做过的项目</h2>
+        <p>挑了几个能公开讲的，涉及数据看板、内容平台和工具类产品。</p>
+      </div>
+      <div class="projects">
+
+        <a class="project reveal" href="#work">
+          <div class="proj-thumb p1">01</div>
+          <div>
+            <h3>Nebula 数据看板 <span class="badge">已上线</span></h3>
+            <p class="desc">面向运营的实时数据平台，支持自定义图表、拖拽布局和多维筛选，单页承载 30+ 可视化模块。</p>
+            <div class="proj-meta"><span>React</span><span>ECharts</span><span>WebSocket</span></div>
+          </div>
+          <div class="arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+        </a>
+
+        <a class="project reveal" href="#work">
+          <div class="proj-thumb p2">02</div>
+          <div>
+            <h3>拾光 · 内容社区</h3>
+            <p class="desc">从 0 到 1 的内容社区前端，包含信息流、编辑器、消息通知，做了完整的骨架屏与离线缓存策略。</p>
+            <div class="proj-meta"><span>Vue 3</span><span>Pinia</span><span>PWA</span></div>
+          </div>
+          <div class="arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+        </a>
+
+        <a class="project reveal" href="#work">
+          <div class="proj-thumb p3">03</div>
+          <div>
+            <h3>企业级组件库 <span class="badge">开源</span></h3>
+            <p class="desc">60+ 组件的设计系统，配套主题变量与暗色模式，被 4 个内部产品复用，文档站自动生成。</p>
+            <div class="proj-meta"><span>TypeScript</span><span>Rollup</span><span>Storybook</span></div>
+          </div>
+          <div class="arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+        </a>
+
+        <a class="project reveal" href="#work">
+          <div class="proj-thumb p4">04</div>
+          <div>
+            <h3>轻记 · 效率工具</h3>
+            <p class="desc">浏览器内的极简笔记工具，支持快捷唤起、Markdown 渲染和本地加密存储，零后端成本。</p>
+            <div class="proj-meta"><span>原生 JS</span><span>IndexedDB</span><span>Web Crypto</span></div>
+          </div>
+          <div class="arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系 -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-box reveal">
+        <div class="sec-label" style="justify-content:center">Get in touch</div>
+        <h2>有想法？一起把它做出来</h2>
+        <p>目前在接前端开发、界面重构和设计系统相关的工作。发个邮件说说你的项目，我一般 24 小时内回复。</p>
+        <a class="btn btn-primary" href="mailto:hello@example.com">
+          hello@example.com
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <div class="socials">
+          <a class="social" href="#" target="_blank" rel="noopener">GitHub</a>
+          <a class="social" href="#" target="_blank" rel="noopener">掘金</a>
+          <a class="social" href="#" target="_blank" rel="noopener">即刻</a>
+          <a class="social" href="#" target="_blank" rel="noopener">微信</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot">
+    <span>© 2026 陈子涵. 用 HTML 和一点耐心做成。</span>
+    <span>Built with vanilla HTML / CSS / JS</span>
+  </div>
+</footer>
+
+<script>
+  // 导航滚动态 + 滚动进度
+  const header = document.getElementById('header');
+  const progress = document.getElementById('progress');
+  const navLinks = [...document.querySelectorAll('[data-nav]')];
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+
+  function onScroll() {
+    const y = window.scrollY;
+    header.classList.toggle('scrolled', y > 20);
+
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
+
+    // 当前所在区块高亮
+    let current = -1;
+    sections.forEach((sec, i) => {
+      if (sec && y >= sec.offsetTop - 140) current = i;
+    });
+    navLinks.forEach((a, i) => a.classList.toggle('active', i === current));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // 滚动进场动画
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        const delay = Math.min(i * 70, 280);
+        setTimeout(() => e.target.classList.add('in'), delay);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // 卡片跟随鼠标的高光
+  document.querySelectorAll('.skill-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+</script>
+</body>
+</html>
